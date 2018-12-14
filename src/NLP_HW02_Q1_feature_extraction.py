@@ -6,15 +6,15 @@
 # description
 # ##########################################################################################
 from nltk.corpus import conll2002
-from nltk.chunk import conlltags2tree, tree2conlltags
+from nltk.chunk import tree2conlltags
 
 etr = conll2002.chunked_sents('esp.train')  # In Spanish
-# eta = conll2002.chunked_sents('esp.testa')  # In Spanish
-# etb = conll2002.chunked_sents('esp.testb')  # In Spanish
+eta = conll2002.chunked_sents('esp.testa')  # In Spanish
+etb = conll2002.chunked_sents('esp.testb')  # In Spanish
 
-# dtr = conll2002.chunked_sents('ned.train')  # In Dutch
-# dta = conll2002.chunked_sents('ned.testa')  # In Dutch
-# dtb = conll2002.chunked_sents('ned.testb')  # In Dutch
+dtr = conll2002.chunked_sents('ned.train')  # In Dutch
+dta = conll2002.chunked_sents('ned.testa')  # In Dutch
+dtb = conll2002.chunked_sents('ned.testb')  # In Dutch
 
 #  data size
 #print("esp.train:: type %s; length %d" % (type(etr), len(etr)))
@@ -36,7 +36,7 @@ def getAdjWordFeatures(token=None, postag=None):
     # manually selected features for the adjacent word
     if (token == None):
         features = ["",
-                    "",
+                    postag,
                     0,
                     0]
     else:
@@ -81,7 +81,7 @@ def word2features(sent, i, order):
             features.extend(getAdjWordFeatures(prvToken, prvPostag))
         else:
             # add pad
-            features.extend(getAdjWordFeatures())
+            features.extend(getAdjWordFeatures(token=None,postag="BOS"))
         if (nxt<len(sent)):
             # token exist
             nxtToken  = sent[nxt][0]
@@ -89,7 +89,7 @@ def word2features(sent, i, order):
             features.extend(getAdjWordFeatures(nxtToken, nxtPostag))
         else:
             # add pad
-            features.extend(getAdjWordFeatures())
+            features.extend(getAdjWordFeatures(token=None,postag="EOS"))
 
     return features
 
@@ -97,15 +97,32 @@ def word2features(sent, i, order):
 x = etr.__getitem__
 print("esp.train:: data point: type %s; value %s" % (type(x), x))
 
+# comparing formats
+sent = etr[0]
+sent_vec = tree2conlltags(sent)
+
+print("tree format:\n%s" % sent)
+print("\n")
+print("list-of-tuples format:\n%s" % sent_vec)
+
 # testing the features extraction
-counter = 1
-for sent in etr:
-    # sent is a sentence in a tree format
-    # print("esp.train:: data point: type %s; value %s" % (type(sent), sent))
-    # print("%s" % tree2conlltags(sent))
-    sent_vec = tree2conlltags(sent)
-    for sent_item in sent_vec:
-        print("data point entry: type %s; value %s" % (type(sent_item), sent_item))
-    counter = counter - 1
-    print(word2features(sent_vec,2,2))
-    if (counter == 0): break
+order = 2
+
+tokenIndex = 0
+print("sample a token: index in sentence: %d; type %s; value %s" % (tokenIndex, type(sent_vec[tokenIndex]), sent_vec[tokenIndex]))
+print(word2features(sent_vec,tokenIndex,order))
+
+tokenIndex = len(sent_vec)-1
+print("sample a token: index in sentence: %d; type %s; value %s" % (tokenIndex, type(sent_vec[tokenIndex]), sent_vec[tokenIndex]))
+print(word2features(sent_vec,tokenIndex,order))
+
+
+# counter = 1
+# for sent in etr:
+#     # sent is a sentence in a tree format
+#     sent_vec = tree2conlltags(sent)
+#     for sent_item in sent_vec:
+#         print("data point entry: type %s; value %s" % (type(sent_item), sent_item))
+#     counter = counter - 1
+#     print(word2features(sent_vec,0,2))
+#     if (counter == 0): break
