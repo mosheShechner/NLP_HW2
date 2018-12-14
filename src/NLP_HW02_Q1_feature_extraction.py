@@ -93,7 +93,38 @@ def word2features(sent, i, order):
 
     return features
 
-# reaching a data point
+# encoding data set
+def sent2features(sent, order):
+    return [word2features(sent, i, order) for i in range(len(sent))]
+
+def sent2labels(sent):
+    return [label for token, postag, label in sent]# reaching a data point
+
+def sent2tokens(sent):
+    return [token for token, postag, label in sent]
+
+def getX(sentenceDataSet,order):
+    xOut = []
+    for sent in sentenceDataSet:
+        sent_vec = tree2conlltags(sent)
+        xOut.extend(sent2features(sent_vec,order))
+    return xOut
+
+def getY(sentenceDataSet):
+    yOut = []
+    for sent in sentenceDataSet:
+        sent_vec = tree2conlltags(sent)
+        yOut.extend(sent2labels(sent_vec))
+    return yOut
+
+def getTokens(sentenceDataSet):
+    tokenOut =[]
+    for sent in sentenceDataSet:
+        sent_vec = tree2conlltags(sent)
+        tokenOut.extend(sent2tokens(sent_vec))
+    return tokenOut
+
+# reaching an element
 x = etr.__getitem__
 print("esp.train:: data point: type %s; value %s" % (type(x), x))
 
@@ -116,6 +147,15 @@ tokenIndex = len(sent_vec)-1
 print("sample a token: index in sentence: %d; type %s; value %s" % (tokenIndex, type(sent_vec[tokenIndex]), sent_vec[tokenIndex]))
 print(word2features(sent_vec,tokenIndex,order))
 
+# testing encoding
+x           = getX(etr, order)
+y           = getY(etr)
+tokenList   = getTokens(etr)
+
+print("checking encoding")
+print("x sample: %s" % x[0])
+print("y sample: %s" % y[0])
+print("token sample: %s" % tokenList[0])
 
 # counter = 1
 # for sent in etr:
