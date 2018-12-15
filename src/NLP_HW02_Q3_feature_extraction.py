@@ -15,30 +15,31 @@ def setBoolVal(bool=None):
     if (bool==None):   return 0.5
     else:              return 1.0*bool2int(bool)
 
-def getAdjWordFeatures(token=None, postag=None):
+def getPadWordFeatures(token=None, postag=None, pref=""):
+    features = {pref + 'token':         token,
+                pref + 'postag':        postag,
+                pref + 'isdigit':       setBoolVal(None),
+                pref + 'isupper':       setBoolVal(None)}
+    return features
+
+def getAdjWordFeatures(token=None, postag=None, pref=""):
     # manually selected features for the adjacent word
-    if (token == None):
-        features = ["TOKEN_UNK",
-                    "POS_UNK",
-                    setBoolVal(None),
-                    setBoolVal(None)]
-    else:
-        features = [token.lower(),
-                    postag,
-                    setBoolVal(token.isdigit()),
-                    setBoolVal(token.isupper())]
+    features = {pref+'token.lower': token.lower(),
+                pref+'postag':      postag,
+                pref+'isdigit':     setBoolVal(token.isdigit()),
+                pref+'isupper':     setBoolVal(token.isupper())}
     return features
 
 def getWordFeatures(token, postag):
     # manually selected features for the word
-    features = [token.lower(),
-                postag,
-                setBoolVal(token.isdigit()),
-                setBoolVal(token.isupper()),
-                token[:1],
-                token[:2],
-                token[-1:],
-                token[-2:]]
+    features = {'token.lower':  token.lower(),
+                'postag':       postag,
+                'isdigit':      setBoolVal(token.isdigit()),
+                'isupper':      setBoolVal(token.isupper()),
+                'perf1':        token[:1],
+                'pref2':        token[:2],
+                'suff1':        token[-1:],
+                'suff2':        token[-2:]}
     return features
 
 def word2features(sent, i, order):
@@ -48,31 +49,33 @@ def word2features(sent, i, order):
     token  = sent[i][0]
     postag = sent[i][1]
     # set token features
-    features = []
-    features.extend(getWordFeatures(token,postag))
+    features = {}
+    features.update(getWordFeatures(token,postag))
 
     # adding features for order-previous and order successive tokens
     for j in range(order):
         # previous words
         prv = (i - (j + 1))
         nxt = (i + (j + 1))
+        prvStr = str(prv)
+        nxtStr = str(nxt)
 
         if (prv >= 0):
             # token exist
             prvToken  = sent[prv][0]
             prvPostag = sent[prv][1]
-            features.extend(getAdjWordFeatures(prvToken, prvPostag))
+            features.update(getAdjWordFeatures(prvToken, prvPostag,prvStr))
         else:
             # add pad
-            features.extend(getAdjWordFeatures(token=None,postag="BOS"))
+            features.update(getPadWordFeatures(token="PAD",postag="BOS", pref=prvStr))
         if (nxt<len(sent)):
             # token exist
             nxtToken  = sent[nxt][0]
             nxtPostag = sent[nxt][1]
-            features.extend(getAdjWordFeatures(nxtToken, nxtPostag))
+            features.update(getAdjWordFeatures(nxtToken, nxtPostag, nxtStr))
         else:
             # add pad
-            features.extend(getAdjWordFeatures(token=None,postag="EOS"))
+            features.update(getPadWordFeatures(token="PAD",postag="EOS", pref=nxtStr))
 
     return features
 
