@@ -12,16 +12,16 @@ def bool2int(bool):
     else:              return 0
 
 def setBoolVal(bool=None):
-    if (bool==None):   return 0.0
-    else:              return 2.0*(bool2int(bool)-0.5)
+    if (bool==None):   return 0.5
+    else:              return 1.0*bool2int(bool)
 
 def getAdjWordFeatures(token=None, postag=None):
     # manually selected features for the adjacent word
     if (token == None):
-        features = ["",
-                    postag,
-                    0,
-                    0]
+        features = ["TOKEN_UNK",
+                    "POS_UNK",
+                    setBoolVal(None),
+                    setBoolVal(None)]
     else:
         features = [token.lower(),
                     postag,
