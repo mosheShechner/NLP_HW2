@@ -104,9 +104,27 @@ def getY(sentenceDataSet):
     return yOut
 
 def getTokens(sentenceDataSet):
-    tokenOut =[]
+    tokenOut = []
     for sent in sentenceDataSet:
         sent_vec = tree2conlltags(sent)
         tokenOut.extend(sent2tokens(sent_vec))
     return tokenOut
 
+# single sentence vectorisers: for sample
+def getSentX(sent, order):
+    xOut = []
+    sent_vec = tree2conlltags(sent)
+    xOut.extend(sent2features(sent_vec, order))
+    return xOut
+
+def getSentY(sent):
+    yOut = []
+    sent_vec = tree2conlltags(sent)
+    yOut.extend(sent2labels(sent_vec))
+    return yOut
+
+def getSentTokens(sent):
+    tokenOut = []
+    sent_vec = tree2conlltags(sent)
+    tokenOut.extend(sent2tokens(sent_vec))
+    return tokenOut
